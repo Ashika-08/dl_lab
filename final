@@ -1,0 +1,230 @@
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense,Flatten
+from tensorflow.keras.datasets import mnist
+import numpy as np
+import matplotlib.pyplot as plt
+
+(x_train,y_train),(x_test,y_test)=mnist.load_data();
+
+(x_train,x_test)=x_train/255.0,x_test/255.0
+
+model=Sequential([ 
+    Flatten(input_shape=(28,28)),
+    Dense(128,activation='relu'),
+    Dense(10,activation='softmax')
+])
+
+model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])
+
+model.fit(x_train,y_train,epochs=5,validation_data=(x_test,y_test))
+
+test_loss,test_acc=model.evaluate(x_test,y_test)
+print("test accuracy : ",test_acc)
+
+sample_index=0
+sample_image=x_test[sample_index]
+sample_label=y_test[sample_index]
+sample_input=np.expand_dims(sample_image,axis=0)
+
+prediction=model.predict(sample_input)
+pred=np.argmax(prediction)
+
+plt.imshow(sample_image,cmap='gray')
+plt.title(f"actual : {sample_label} | prediction : {pred}")
+plt.axis("off")
+plt.show()
+
+
+import librosa
+import tensorflow as tf
+from tensorflow.keras.layers import Flatten,Dense
+from tensorflow.keras.models import Sequential
+import numpy as np
+
+audio_path=librosa.example('trumpet')
+
+def get_mfcc(path):
+  y,sr=librosa.load(path,sr=16000)
+  mfcc=librosa.feature.mfcc(y=y,sr=sr,n_mfcc=13)
+  return mfcc.T[:30]
+
+model=Sequential([ 
+    Flatten(input_shape=(30,13)),
+    Dense(128,activation='relu'),
+    Dense(10,activation='softmax')
+])
+
+model.compile(optimizer='adam',loss='sparse_categorical_crossentropy')
+inputs=np.array([get_mfcc(audio_path) for _ in range (5)])
+prediction=model.predict(inputs)
+
+for i,pred in enumerate(prediction):
+  print(f"prediction {i+1} : {np.argmax(pred)}")
+
+
+import numpy as np
+import tensorflow as tf 
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D,MaxPooling2D,Flatten,Dense
+from tensorflow.keras.datasets import cifar10
+import matplotlib.pyplot as plt 
+
+(x_train,y_train),(x_test,y_test)=cifar10.load_data()
+
+train_filter=(y_train==1) | (y_train==9)
+test_filter=(y_test==1) | (y_test==9)
+
+x_train=x_train[train_filter.squeeze()]/255.0
+x_test=x_test[test_filter.squeeze()]/255.0
+
+y_train=((y_train[train_filter]-1)//8).squeeze()
+y_test=((y_test[test_filter]-1)//8).squeeze() 
+
+model=Sequential([ 
+    Conv2D(32,(3,3), activation='relu',input_shape=(32,32,3)),
+    MaxPooling2D(pool_size=(2,2)),
+    Conv2D(64,(3,3), activation='relu'),
+    MaxPooling2D(pool_size=(2,2)),
+    Flatten(),
+    Dense(64,activation='relu'),
+    Dense(2,activation='softmax')
+])
+
+model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])
+
+model.fit(x_train,y_train,epochs=5,validation_data=(x_test,y_test),verbose=1)
+
+test_loss,test_acc=model.evaluate(x_test,y_test,verbose=0)
+print(f'test accuracy: {test_loss}')
+
+cls_name=['car','truck'] 
+for i in range (5):
+  image=x_test[i]
+  pred=model.predict(np.expand_dims(image,axis=0),verbose=0)
+  prd_cls=np.argmax(pred)
+  plt.imshow(image)
+  plt.title(f"Pridiction: {cls_name[prd_cls]}")
+  plt.axis('off')
+  plt.show()
+
+
+import numpy as np
+from sklearn.neural_network import BernoulliRBM
+from sklearn.pipeline import Pipeline
+from sklearn.datasets import load_digits
+from sklearn.preprocessing import MinMaxScaler
+
+digit=load_digits()
+x=digit.data
+x=x/16.0
+
+x=x[:100]
+
+rbm=BernoulliRBM(n_components=64,learning_rate=0.06,n_iter=10,random_state=0)
+rbm.fit(x)
+x_agumented=rbm.gibbs(x)
+
+for i in range (5):
+  plt.subplot(2,5,i+1)
+  plt.imshow(x[i].reshape(8,8,),cmap='gray')
+  plt.title("original")
+  plt.axis("off")
+  
+  plt.subplot(2,5,i+6)
+  plt.imshow(x_agumented[i].reshape(8,8,),cmap='gray')
+  plt.title("augumented")
+  plt.axis("off")
+plt.tight_layout()
+plt.show()
+
+from operator import length_hint
+import numpy as np 
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import TextVectorization,Embedding,LSTM,Dense
+
+texts=[
+    "I love this movie ",
+    "WHat a great story",
+    "wonderful catsing",
+    "hated the movie",
+    "such a waste of time",
+    "worst actor ever"
+]
+labels=[1,1,1,0,0,0]
+train_ds=tf.data.Dataset.from_tensor_slices((texts,labels)).batch(2)
+
+vectorization=TextVectorization(max_tokens=1000,output_sequence_length=10)
+vectorization.adapt(tf.data.Dataset.from_tensor_slices(texts).batch(1))
+
+model=Sequential([
+    vectorization,
+    Embedding(input_dim=1000,output_dim=16),
+    LSTM(16),
+    Dense(1,activation='sigmoid')
+])
+
+model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
+
+model.fit(train_ds,epochs=1,verbose=1)
+test_text=tf.constant(["Absoluatly loved the movie"])
+prediction=model.predict(test_text)[0][0]
+print(f"Prediction score : {prediction}")
+print(f"positive " if prediction >0.51 else "negative")
+
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+x = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([[0], [1], [1], [0]])  
+
+
+model = Sequential([
+    Dense(4, activation='relu', input_shape=(2,)),
+    Dense(1, activation='sigmoid') 
+])
+
+
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(x, y, epochs=1000, verbose=0)
+
+
+pred = model.predict(x)
+print("Prediction:", np.round(pred).flatten())
+
+
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Flatten, Dense
+import matplotlib.pyplot as plt
+from tensorflow.keras.datasets import mnist
+
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+activations = ['relu', 'sigmoid', 'tanh', 'softmax', 'swish']
+accuracy_results = {}
+
+for act in activations:
+    model = Sequential([
+        Flatten(input_shape=(28, 28)),
+        Dense(128, activation=act),
+        Dense(10, activation='softmax')
+    ])
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    history = model.fit(x_train, y_train, epochs=5, validation_data=(x_test, y_test), verbose=0)
+    accuracy_results[act] = history.history['val_accuracy']
+
+plt.figure(figsize=(10, 6))
+for act, acc in accuracy_results.items():
+    plt.plot(acc, label=act)
+
+plt.xlabel('Epochs')
+plt.ylabel('Validation Accuracy')
+plt.title('Activation Function Accuracy Comparison')
+plt.legend()
+plt.show()
