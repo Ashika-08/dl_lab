@@ -1,0 +1,28 @@
+pos_dict={
+    "i":"noun",
+    "need":"verb",
+    "a":"det",
+    "flight":"noun",
+    "from":"prep",
+    "atlanta":"prp_noun",
+    "everthing":"noun",
+    "to":"part",
+    "premit":"verb",
+    "us":"pronoun",
+}
+sentences=[
+    "i need a flight from atlanta",
+    "everything to premit us"
+]
+def pos_tag(senetence):
+  word=sentence.replace('.',"").lower().split()
+  taggers=[]
+  for w in word:
+    tag=pos_dict.get(w,"unk")
+    taggers.append((w,tag))
+  return taggers
+for sentence in sentences:
+  print(f"\n {sentence}")
+  tags=pos_tag(sentence)
+  for word,tag in tags:
+    print(f"{word}-> {tag}")
