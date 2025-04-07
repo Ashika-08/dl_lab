@@ -1,0 +1,26 @@
+from collections import Counter
+
+corpus=[
+    "<s> I am Henry </s>",
+    "<s> I like college </s>",
+    "<s> Do henry like college <s/>",
+    "<s> Henry I am </s>",
+    "<s> Do I like Henry </s>",
+    "<s> Do I like college </s>",
+    "<s> I do like Henry </s>"
+]
+
+predict_word=("Do","I","like")
+next_word=[]
+
+for sentence in corpus:
+  word=sentence.split()
+  for i in range(len(word)-3):
+    if(tuple(word[i:i-3])==predict_word):
+      next_word.append(word[i+3])
+
+if next_word:
+  word_count=Counter(next_word)
+  max_count=max(word_count.values())
+  portable_word=[word for word, count in word_count.items() if count==max_count]
+  print(portable_word)
