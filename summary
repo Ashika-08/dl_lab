@@ -1,0 +1,30 @@
+text = '''Artificial Intelligence is changing the world. 
+It is used in healthcare to detect diseases. 
+AI is used in education to personalize learning. 
+It helps in self-driving cars. 
+Many industries use AI for automation. 
+In banking, AI detects frauds. 
+AI chatbots improve customer service. 
+Entertainment apps use AI for recommendations. 
+AI is useful in agriculture and weather prediction. 
+Still, AI raises ethical concerns.'''
+
+
+sentences = [s.strip() for s in text.split(".") if s.strip()]
+
+
+words = text.lower().replace(".", "").replace(",", "").split()
+freq = {}
+for w in words:
+    freq[w] = freq.get(w, 0) + 1
+
+
+scores = []
+for s in sentences:
+    s_words = s.lower().split()
+    total = sum(freq.get(sw, 0) for sw in s_words)
+    scores.append((total, s))
+
+print("Summary:")
+for _, sentence in sorted(scores, reverse=True)[:3]:
+    print(sentence + ".")
