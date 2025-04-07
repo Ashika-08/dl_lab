@@ -1,0 +1,41 @@
+import re
+
+
+text = '''
+Contact us at support@example.com or sales@mydomain.org. You can also reach john.doe@company.in.
+Call +91-9876543210 or 9765432101 for any queries.
+'''
+
+names = ['Sunil', 'Shyam', 'Ankit', 'Surjeet', 'Sumit', 'Subhi', 'Surbhi', 'Siddharth', 'Sujan']
+
+emails = re.findall(r'\b[\w.-]+@[\w.-]+\.\w+\b', text)
+print("Email IDs:", emails)
+
+phones = re.findall(r'\b(?:\+91[-\s]?)?\d{10}\b', text)
+print("Phone Numbers:", phones)
+
+name_pattern = re.compile(r'^Su\w{3}$')
+matched_names = [name for name in names if name_pattern.match(name)]
+print("Matched Names (Su___):", matched_names)
+
+
+sample = "The code is abc abc abc"
+
+
+print("Search for 'abc':", re.search(r'abc', sample).group())
+
+print("Match from start:", re.match(r'The', sample).group())
+
+print("Substitute abc -> XYZ:", re.sub(r'abc', 'XYZ', sample))
+
+pattern = re.compile(r'abc')
+print("Find all 'abc' using compiled pattern:", pattern.findall(sample))
+
+test1 = ['ab', 'abc', 'abcc', 'abcccc']
+print("Pattern 'ab' followed by zero or more 'c':", [s for s in test1 if re.fullmatch(r'abc*', s)])
+
+test2 = ['a', 'abc', 'abcbc', 'abcbcbc']
+print("Pattern 'a' followed by 0 or more 'bc':", [s for s in test2 if re.fullmatch(r'(a)(bc)*', s)])
+
+test3 = ['ab', 'abc', 'abcc']
+print("Pattern 'ab' followed by 0 or 1 'c':", [s for s in test3 if re.fullmatch(r'abc?', s)])
