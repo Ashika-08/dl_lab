@@ -1,0 +1,20 @@
+import nltk 
+from nltk import CFG
+from nltk.parse.chart import ChartParser
+
+grammar=CFG.fromstring("""
+S -> NP VP
+NP -> DET NOM | N
+NOM -> N
+VP -> V NP
+DET -> 'a'
+N -> 'restaurant' | 'dosa'
+V -> 'serves' 
+""")
+parser = ChartParser(grammar)
+
+sentence = "a restaurant serves dosa".split()
+for tree in parser.parse(sentence):
+    print(tree)
+    tree.pretty_print()
+   
