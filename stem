@@ -1,0 +1,20 @@
+from collections import Counter
+def stem(word):
+  for suffix in ["ing","ly","es","ed","s"]:
+    if word.endswith(suffix):
+      return word[:-len(suffix)]
+  return word
+
+def lemma(word):
+  lemma_dict={
+      "programming":"program",
+      "loving":"love",
+      "lovely":"love",
+      "kind":"kind"
+  }
+  return lemma_dict.get(word.lower(),word)
+
+words=["programming","loving","lovely","kind"]
+
+for word in words:
+  print(f"{word} -> stem : {stem(word)} , lemma : {lemma(word)}")
